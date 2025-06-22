@@ -1,0 +1,53 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load CSV
+df = pd.read_csv('Reliance.csv', parse_dates=['Date'])
+df.dropna(inplace=True)
+df.set_index('Date', inplace=True)
+
+print(df.describe())
+print(df.info())
+
+df['Daily Return'] = df['Adj Close'].pct_change()
+
+plt.figure(figsize=(10,5))
+df['Daily Return'].plot(legend=True, linestyle='--', marker='o', title='Daily Return')
+plt.grid(True)
+plt.show()
+
+# Volatility (Standard Deviation)
+volatility = df['Daily Return'].std()
+print(f"Volatility: {volatility:.4f}")
+
+df['MA20'] = df['Adj Close'].rolling(window=20).mean()
+df['MA50'] = df['Adj Close'].rolling(window=50).mean()
+
+plt.figure(figsize=(12,6))
+df['Adj Close'].plot(label='Adj Close')
+df['MA20'].plot(label='20-Day MA')
+df['MA50'].plot(label='50-Day MA')
+plt.title('Stock Price and Moving Averages')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+fig, ax1 = plt.subplots(figsize=(12,6))
+ax1.plot(df['Adj Close'], color='blue', label='Adj Close')
+ax1.set_ylabel('Price', color='blue')
+
+ax2 = ax1.twinx()
+ax2.bar(df.index, df['Volume'], color='orange', alpha=0.3, label='Volume')
+ax2.set_ylabel('Volume', color='orange')
+
+plt.title('Stock Price and Volume')
+plt.grid(True)
+plt.show()
+df['Cumulative Return'] = (1 + df['Daily Return']).cumprod()
+
+plt.figure(figsize=(10,5))
+df['Cumulative Return'].plot()
+plt.title('Cumulative Returns Over Time')
+plt.grid(True)
+plt.show()
